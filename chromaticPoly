@@ -34,9 +34,9 @@ class  Mint
     static constexpr u32  n2 = -u64( mod ) % mod;
     u32                   a;
 
-    static_assert( r * mod == 1, "invalid, r * mod != 1" );
+    static_assert( r * mod == 1,    "invalid, r * mod != 1" );
     static_assert( mod < (1 << 30), "invalid, mod >= 2 ^ 30" );
-    static_assert( (mod & 1) == 1, "invalid, mod % 2 == 0" );
+    static_assert( (mod & 1) == 1,  "invalid, mod % 2 == 0" );
 
   public:
     constexpr Mint() : a( 0 ) {}
@@ -389,10 +389,11 @@ bool  findBridge( const vector<u64> &G, pr &edge )  {
 
 // FIND CONNECTED COMPONENTS OF G
 vector<vector<u32>>  components( const vector<u64> &G )  {
+    u32  n = G.size();
     u64  visited = 0ULL;
     vector<vector<u32>>  comps;
 
-    for( u32 i=0 ; i<(u32)G.size() ; ++i )  {
+    for( u32 i=0 ; i<n ; ++i )  {
         if( visited >> i & 1 )   continue;
         stack<u32>  stk;
         stk.push( i );
@@ -405,7 +406,7 @@ vector<vector<u32>>  components( const vector<u64> &G )  {
 
             component.push_back( u );
 
-            for( u32 v=0 ; v<(u32)G.size() ; ++v )
+            for( u32 v=0 ; v<n ; ++v )
                 if( ( G[u] >> v & 1 )  &&  !( visited >> v & 1 ) )  {
                     visited |= 1ULL << v;
                     stk.push( v );
@@ -491,13 +492,13 @@ Poly checkIfChordal( const vector<u64> &G, bool &ok )  {
 class  Myhash  {
   private:
     static inline uint64_t  ror64( uint64_t v, int r )  {
-        return  ( v >> r ) | ( v << ( 64 - r ) );
+        return ( v >> r ) | ( v << ( 64 - r ) );
     }
 
     uint64_t  hashu64( uint64_t v ) const  {
-        v ^= ror64(v, 25) ^ ror64( v, 50 );
+        v ^= ror64( v, 25 ) ^ ror64( v, 50 );
         v *= 0xA24BAED4963EE407UL;
-        v ^= ror64(v, 24) ^ ror64( v, 49 );
+        v ^= ror64( v, 24 ) ^ ror64( v, 49 );
         v *= 0x9FB21C651E98DF25UL;
         return  v ^ v >> 28;
     }
@@ -576,7 +577,6 @@ Poly  chromaticPolyConnected( const vector<u64> &G, bool checkBridges = true )  
     vector<u64>  K = addEdge( G, edge );
     return  memo[G] = chromaticPolyConnected( K, false ) +
                       chromaticPolyConnected( contractEdge( K, edge ) );
-
 }
 
 Poly  chromaticPolynomial( const vector<u64> &G )  {
