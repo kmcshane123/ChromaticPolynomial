@@ -149,6 +149,15 @@ class FormalPowerSeries
         }
         return  res;
     }
+    T  evaluate( i64 x )  {
+        T  ans  = 0;
+        T  powx = 1;
+        for( auto &v : a )  {
+            ans += v*powx;
+            powx *= x;
+       }
+       return  ans;
+    }
     T  &operator [] ( size_t  x )  {
         assert( x < this->a.size() );
         return  a[x];
@@ -525,13 +534,12 @@ unordered_map< vector<u64>, Poly, Myhash >  memo;
 Poly  chromaticPolyConnected( const vector<u64> &G, bool checkBridges = true )  {
     // G IS ASSUMED CONNECTED.  CONNECTIVITY IS MAINTAINED.
     const i32  n = G.size();
-    switch( n )  {
-      case 0:  return  { 1 };         break;
-      case 1:  return  { 0, 1 };      break;
-      case 2:  return  { 0, -1, 1 };  break;
-      case 3:
-        if( isComplete( G ) )  return  { 0, 2, -3, 1 };
-        else                   return  { 0, 1, -2, 1 };
+    if( n == 0 )   return  { 1 };
+    if( n == 1 )   return  { 0, 1 };
+    if( n == 2 )   return  { 0, -1, 1 };
+    if( n == 3 )  {
+        if( isComplete( G ) )    return  { 0, 2, -3, 1 };
+        else                     return  { 0, 1, -2, 1 };
     }
 
     if( memo.find( G ) != memo.end() )   return  memo[G];
