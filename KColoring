@@ -1,6 +1,9 @@
 // COMPUTE CHROMATIC POLYNOMIAL OF A GRAPH G
 // --LIMITED TO GRAPHS WITH AT MOST 64 NODES
 
+// SOLVES THE ATCODER K-COLORING PROBLEM 
+// https://atcoder.jp/contests/abc294/tasks/abc294_h
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
