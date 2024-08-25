@@ -10,3 +10,5 @@ OUTPUT 0 10 998244330 19 998244346 1
 Uses a modular integer class to handle the mod calculations and a power series class to deal with polynomials.
 
 This code is verified, in that it solves https://judge.yosupo.jp/problem/chromatic_polynomial
+
+The No NTT code is recommended since the polynomials are not very large.
