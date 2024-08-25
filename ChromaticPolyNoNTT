@@ -251,35 +251,6 @@ class  Graph  {
         return  G;
     }
 
-    void  bridgeDFS( vector<i32> &tin, vector<i32> &low, u64 &visited, u32 &best,
-                     pr &edge, u32 u, i32 p = -1 )  {
-        static u32  timer = 0;
-        const u64  gu  = g[u];
-        const u32  pcu = __builtin_popcount( gu );
-        bool  parentSkipped = false;
-        tin[u] = low[u] = timer++;
-        visited |= ( 1ULL << u );
-
-        for( u32 v=0 ; v<(u32)g.size() ; ++v )  {
-            if( gu >> v & 1 )  {
-                if( (i32)v == p  &&  !parentSkipped )  {
-                    parentSkipped = true;
-                    continue;
-                }
-                if( visited >> v & 1 )  {
-                    low[u] = min( low[u], tin[v] );
-                }  else  {
-                    bridgeDFS( tin, low, visited, best, edge, v, u );
-                    low[u] = min( low[u], low[v] );
-                    if( low[v] > tin[u]  &&  pcu + __builtin_popcount( g[v] ) > best ) {
-                        best = pcu + __builtin_popcount( g[v] );
-                        edge = { u, v };
-                    }
-                }
-            }
-        }
-    }
-
     bool  findBridge( pr &edge )  {
         const u32  n = g.size();
         u32  best    = 0;
@@ -475,6 +446,54 @@ class  Graph  {
         return  comps;
     }
 
+    Poly  chromaticPolynomial()  {
+        // FIND CONNECTED COMPONENTS OF G
+        vector< vector<u32> >  comps = components();
+
+        // PROCESS EACH CONNECTED COMPONENT SEPARATELY
+        if( comps.size() > 1 )  {
+            Poly  cp = { 1 };
+            for( auto &cmp : comps )  {
+                if( cmp.size() == 0 );
+                else if( cmp.size() == 1 )   cp *= { 0, 1 };
+                else if( cmp.size() == 2 )   cp *= { 0, -1, 1 };
+                else  cp *= extractNodes( cmp ).chromaticPolyConnected();
+            }
+            return  cp;
+        }
+        return  chromaticPolyConnected();
+    }
+
+  private:
+    void  bridgeDFS( vector<i32> &tin, vector<i32> &low, u64 &visited, u32 &best,
+                     pr &edge, u32 u, i32 p = -1 )  {
+        static u32  timer = 0;
+        const u64  gu  = g[u];
+        const u32  pcu = __builtin_popcount( gu );
+        bool  parentSkipped = false;
+        tin[u] = low[u] = timer++;
+        visited |= ( 1ULL << u );
+
+        for( u32 v=0 ; v<(u32)g.size() ; ++v )  {
+            if( gu >> v & 1 )  {
+                if( (i32)v == p  &&  !parentSkipped )  {
+                    parentSkipped = true;
+                    continue;
+                }
+                if( visited >> v & 1 )  {
+                    low[u] = min( low[u], tin[v] );
+                }  else  {
+                    bridgeDFS( tin, low, visited, best, edge, v, u );
+                    low[u] = min( low[u], low[v] );
+                    if( low[v] > tin[u]  &&  pcu + __builtin_popcount( g[v] ) > best ) {
+                        best = pcu + __builtin_popcount( g[v] );
+                        edge = { u, v };
+                    }
+                }
+            }
+        }
+    }
+
     Poly  chromaticPolyConnected( bool checkBridges = true )  {
         // G IS ASSUMED CONNECTED.  CONNECTIVITY IS MAINTAINED.
         const i32  n = g.size();
@@ -529,24 +548,6 @@ class  Graph  {
         Graph  K = addEdge( edge );
         return  memo[g] = K.chromaticPolyConnected( false ) +
                           K.contractEdge( edge ).chromaticPolyConnected();
-    }
-
-    Poly  chromaticPolynomial()  {
-        // FIND CONNECTED COMPONENTS OF G
-        vector< vector<u32> >  comps = components();
-
-        // PROCESS EACH CONNECTED COMPONENT SEPARATELY
-        if( comps.size() > 1 )  {
-            Poly  cp = { 1 };
-            for( auto &cmp : comps )  {
-                if( cmp.size() == 0 );
-                else if( cmp.size() == 1 )   cp *= { 0, 1 };
-                else if( cmp.size() == 2 )   cp *= { 0, -1, 1 };
-                else  cp *= extractNodes( cmp ).chromaticPolyConnected();
-            }
-            return  cp;
-        }
-        return  chromaticPolyConnected();
     }
 };
 
