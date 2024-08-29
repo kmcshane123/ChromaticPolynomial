@@ -6,7 +6,6 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
-#include <bitset>
 #include <cassert>
 #include <limits>
 
@@ -16,8 +15,8 @@ template <uint32_t mod>  // MOD INT STORED IN MONTGOMERY FORM
 class  Mint
 {
   private:
-    using  i32 =  int32_t;    using  i64 =  int64_t;
-    using  u32 = uint32_t;    using  u64 = uint64_t;
+    using  i32 = int32_t;    using  i64 = int64_t;
+    using  u32 = uint32_t;   using  u64 = uint64_t;
 
     static constexpr u32  get_r()  {
         u32  ret = mod;
@@ -195,8 +194,8 @@ class  Polynomial
 /* =======================================================================*/
 
 using  Poly = Polynomial< Mint<998244353> >;
-using  i32  =  int32_t;     using  i64 =  int64_t;
-using  u32  = uint32_t;     using  u64 = uint64_t;
+using  i32  = int32_t;     using  i64 = int64_t;
+using  u32  = uint32_t;    using  u64 = uint64_t;
 using  pr   = pair<u32, u32>;
 
 // WILL USE AN UNORDERED MAP TO MEMOIZE GRAPH/POLYNOMIAL PAIRS SO NEED HASH
@@ -246,16 +245,12 @@ class  Graph  {
         Graph  G( *this );
         const auto  [u, v] = edge;
         G.g[u] |= G.g[v];                                 // ASSIGN NBRS OF v TO u
-
         for( auto &e : G.g )   e |= ( e >> v & 1 ) << u;  // IF v WAS NBR, ADD u
-
         G.g[u] &= ~( 1ULL << u );                         // u IS NOT NBR OF ITSELF
-
         for( auto &e : G.g )  {                           // DELETE COLUMN v
             e = ( e &  ( ( 1ULL << v ) - 1 ) )  |
                 ( e & ~( ( 1ULL << ( v + 1 ) ) - 1 ) ) >> 1;
         }
-
         G.g.erase( G.g.begin() + v );                    // DELETE ROW v
         return  G;
     }
@@ -265,13 +260,12 @@ class  Graph  {
         u32  best    = 0;
         u64  visited = 0ULL;
         edge         = { 0, 0 };
-        vector<i32>  tin( n, 0 );
-        vector<i32>  low( n, 0 );
+        vector<u32>  tin( n, 0 );
+        vector<u32>  low( n, 0 );
 
         for( u32 i=0 ; i<n ; ++i )
             if( !( visited >> i & 1 ) )
                 bridgeDFS( tin, low, visited, best, edge, i );
-
         return  ( edge != pr( { 0, 0 } ) ) ? true : false;
     }
 
@@ -282,7 +276,7 @@ class  Graph  {
         return  true;
     }
 
-    bool  isLoop()  {
+    bool  isLoop()  {   // ASSUMES G IS CONNECTED AND NOT CHORDAL
         if( g.size() < 4 )   return  false;
         for( u64 e : g )
             if( __builtin_popcountll( e ) != 2 )   return  false;
@@ -440,9 +434,7 @@ class  Graph  {
             while( stk.size() )  {
                 u32  u = stk.top();
                 stk.pop();
-
                 component.push_back( u );
-
                 for( u32 v=0 ; v<n ; ++v )
                     if( ( g[u] >> v & 1 )  &&  !( visited >> v & 1 ) )  {
                         visited |= 1ULL << v;
@@ -474,7 +466,7 @@ class  Graph  {
     }
 
   private:
-    void  bridgeDFS( vector<i32> &tin, vector<i32> &low, u64 &visited, u32 &best,
+    void  bridgeDFS( vector<u32> &tin, vector<u32> &low, u64 &visited, u32 &best,
                      pr &edge, u32 u, i32 p = -1 )  {
         static u32  timer = 0;
         const u64  gu  = g[u];
