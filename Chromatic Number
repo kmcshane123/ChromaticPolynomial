@@ -1,5 +1,3 @@
-// CHROMATIC NUMBER:  SOLVES  https://judge.yosupo.jp/problem/chromatic_number
-
 // COMPUTE CHROMATIC POLYNOMIAL OF A GRAPH G
 // --LIMITED TO GRAPHS WITH AT MOST 64 NODES
 // PASSES TESTS AT  https://judge.yosupo.jp/problem/chromatic_polynomial
@@ -274,7 +272,7 @@ class  Graph  {
     bool  isComplete()  {
         const int  n = (int)g.size() - 1;
         for( auto e : g )
-            if( __builtin_popcount( e ) != n )   return false;
+            if( __builtin_popcountll( e ) != n )   return false;
         return  true;
     }
 
@@ -472,7 +470,7 @@ class  Graph  {
                      pr &edge, u32 u, i32 p = -1 )  {
         static u32  timer = 0;
         const u64  gu  = g[u];
-        const u32  pcu = __builtin_popcount( gu );
+        const u32  pcu = __builtin_popcountll( gu );
         bool  parentSkipped = false;
         tin[u] = low[u] = timer++;
         visited |= ( 1ULL << u );
@@ -488,8 +486,8 @@ class  Graph  {
                 }  else  {
                     bridgeDFS( tin, low, visited, best, edge, v, u );
                     low[u] = min( low[u], low[v] );
-                    if( low[v] > tin[u]  &&  pcu + __builtin_popcount( g[v] ) > best ) {
-                        best = pcu + __builtin_popcount( g[v] );
+                    if( low[v] > tin[u]  &&  pcu + __builtin_popcountll( g[v] ) > best ) {
+                        best = pcu + __builtin_popcountll( g[v] );
                         edge = { u, v };
                     }
                 }
