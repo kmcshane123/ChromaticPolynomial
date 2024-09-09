@@ -2,7 +2,7 @@
 // CHROMATIC POLYNOMIAL OF A 64 NODE GRAPH.
 
 // USES 128 bit INTEGERS FOR THE POLYNOMIAL OPERATIONS
-// TIME REQUIRED ON MY LAPTOP:  191 MINUTES (!)  ANS: 10834893628237824
+// TIME REQUIRED ON MY LAPTOP:  189 MINUTES (!)  ANS: 10834893628237824
 // REQUIRES 126 MINUTES WHEN CALCULATING SOLUTION MOD 998244353
 
 #include <iostream>
@@ -201,7 +201,7 @@ class  Polynomial
 /* =======================================================================*/
 
 //using  Poly = Polynomial< Mint<998244353> >;
-using  Poly = Polynomial< __int128 >;
+using  Poly = Polynomial< __int128_t >;
 using  i32  = int32_t;     using  i64 = int64_t;
 using  u32  = uint32_t;    using  u64 = uint64_t;
 using  pr   = pair<u32, u32>;
@@ -602,7 +602,7 @@ Graph  getG( int n )  {
 }
 
 //    ======== 128 BIT INTEGER CODE BEGIN ========
-typedef __int128  _LLI;  //  or unsigned instead
+typedef __int128_t  _LLI;  //  or unsigned instead
 
 string toString( _LLI value )
 {
