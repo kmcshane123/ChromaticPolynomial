@@ -1,8 +1,8 @@
 // SOLVES PROJECT EULER 189 TRI-COLORING A TRIANGULAR GRID
 // https://projecteuler.net/problem=189
 
-// 4.8 SECONDS FOR 7 ROWS (49 NODE GRAPH)
-// 29  MINUTES FOR 8 ROWS (64 NODE GRAPH)
+//  2.3 SECONDS FOR 7 ROWS (49 NODE GRAPH)
+// 16.5 MINUTES FOR 8 ROWS (64 NODE GRAPH)
 
 #include <iostream>
 #include <algorithm>
@@ -556,7 +556,7 @@ int  main()  {
     ios::sync_with_stdio( 0 );
     cin.tie( 0 );
 
-    Graph  G = getG( 8 );
+    Graph  G = getG( 7 );
 
     auto  ans = G.chromaticPolynomial( 3 );
     cout << ans << '\n';
