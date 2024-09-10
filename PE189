@@ -4,6 +4,12 @@
 //  2.3 SECONDS FOR 7 ROWS (49 NODE GRAPH)
 // 16.5 MINUTES FOR 8 ROWS (64 NODE GRAPH)
 
+// SOLVES PROJECT EULER 189 TRI-COLORING A TRIANGULAR GRID
+// https://projecteuler.net/problem=189
+
+//  2.3 SECONDS FOR 7 ROWS (49 NODE GRAPH)
+//  5.7 MINUTES FOR 8 ROWS (64 NODE GRAPH)
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -110,8 +116,8 @@ class  Polynomial
 
 /* =======================================================================*/
 
-using  Poly = Polynomial< __int128_t >;
-using  mint = __int128_t;
+using  Poly = Polynomial< int64_t >;
+using  mint = int64_t;
 using  i32  = int32_t;     using  i64 = int64_t;
 using  u32  = uint32_t;    using  u64 = uint64_t;
 using  pr   = pair<u32, u32>;
