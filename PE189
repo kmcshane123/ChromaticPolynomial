@@ -556,7 +556,7 @@ int  main()  {
     ios::sync_with_stdio( 0 );
     cin.tie( 0 );
 
-    Graph  G = getG( 7 );
+    Graph  G = getG( 8 );
 
     auto  ans = G.chromaticPolynomial( 3 );
     cout << ans << '\n';
