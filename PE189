@@ -2,12 +2,6 @@
 // https://projecteuler.net/problem=189
 
 //  2.3 SECONDS FOR 7 ROWS (49 NODE GRAPH)
-// 16.5 MINUTES FOR 8 ROWS (64 NODE GRAPH)
-
-// SOLVES PROJECT EULER 189 TRI-COLORING A TRIANGULAR GRID
-// https://projecteuler.net/problem=189
-
-//  2.3 SECONDS FOR 7 ROWS (49 NODE GRAPH)
 //  5.7 MINUTES FOR 8 ROWS (64 NODE GRAPH)
 
 #include <iostream>
