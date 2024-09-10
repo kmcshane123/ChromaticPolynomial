@@ -4,6 +4,7 @@
 // USES 128 bit INTEGERS FOR THE POLYNOMIAL OPERATIONS
 // TIME REQUIRED ON MY LAPTOP:  189 MINUTES (!)  ANS: 10834893628237824
 // REQUIRES 126 MINUTES WHEN CALCULATING SOLUTION MOD 998244353
+// REQUIRES ONLY 6 SECONDS FOR 7 ROWS (49 NODE GRAPH)
 
 #include <iostream>
 #include <algorithm>
@@ -12,96 +13,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <limits>
-
 using namespace std;
-
-template <uint32_t mod>  // MOD INT STORED IN MONTGOMERY FORM
-class  Mint
-{
-  private:
-    using  i32 = int32_t;    using  i64 = int64_t;
-    using  u32 = uint32_t;   using  u64 = uint64_t;
-
-    static constexpr u32  get_r()  {
-        u32  ret = mod;
-        for( i32 i=0 ; i<4 ; ++i )  ret *= 2 - mod * ret;
-        return  ret;
-    }
-
-    static constexpr u32  reduce( const u64 &b )  {
-        return ( b + u64( u32( b ) * u32( -r ) ) * mod ) >> 32;
-    }
-
-    // CLASS MEMBER DATA
-    static constexpr u32  r  = get_r();
-    static constexpr u32  n2 = -u64( mod ) % mod;
-	u32                   a;
-
-    static_assert( r * mod == 1, "invalid, r * mod != 1" );
-    static_assert( mod < (1 << 30), "invalid, mod >= 2 ^ 30" );
-    static_assert( (mod & 1) == 1, "invalid, mod % 2 == 0" );
-
-  public:
-    // CONSTRUCTORS
-    constexpr Mint() : a( 0 ) {}
-    constexpr Mint( i64 b )
-        : a( reduce( u64( b % mod + mod ) * n2 ) ) {};
-
-    // ARITMETIC OPERATORS
-    constexpr Mint &operator += ( const Mint &b )  {
-        if( i32( a += b.a - 2 * mod ) < 0 )   a += 2 * mod;
-        return  *this;
-    }
-    constexpr Mint &operator -= ( const Mint &b )  {
-        if( i32( a -= b.a ) < 0 )   a += 2 * mod;
-        return  *this;
-    }
-    constexpr Mint &operator *= ( const Mint &b )  {
-        a = reduce( u64( a ) * b.a );
-        return  *this;
-    }
-    constexpr Mint &operator /= ( const Mint &b )  {
-        *this *= b.inverse();
-        return  *this;
-    }
-
-    constexpr Mint operator  + (const Mint &b) const { return Mint(*this) += b; }
-    constexpr Mint operator  - (const Mint &b) const { return Mint(*this) -= b; }
-    constexpr Mint operator  * (const Mint &b) const { return Mint(*this) *= b; }
-    constexpr Mint operator  / (const Mint &b) const { return Mint(*this) /= b; }
-    constexpr Mint operator - () const {  return  Mint() - Mint(*this); }
-    Mint& operator         ++ ()  { return  *this += Mint( 1 ); }
-    Mint& operator         -- ()  { return  *this -= Mint( 1 ); }
-
-    constexpr Mint  pow( u64 n ) const  {
-        Mint  ret(  1 ), mul( *this );
-        while( n > 0 )  { if( n & 1 )  ret *= mul;   mul *= mul;  n >>= 1; }
-        return  ret;
-    }
-    constexpr Mint  inverse() const { return  pow( mod - 2 ); }
-    constexpr u32  get() const  {
-        u32  ret = reduce( a );
-        return  ret >= mod ? ret - mod : ret;
-    }
-    static constexpr u32  get_mod()  { return mod; }
-
-    constexpr bool operator == (const Mint &b) const {
-        return ( a >= mod ? a - mod : a ) == ( b.a >= mod ? b.a - mod : b.a );
-    }
-    constexpr bool operator != (const Mint &b) const  {
-        return ( a >= mod ? a - mod : a ) != ( b.a >= mod ? b.a - mod : b.a );
-    }
-
-    // INPUT AND OUTPUT
-    friend ostream &operator << ( ostream &os, const Mint &b )  {
-        return  os << b.get();
-    }
-    friend istream &operator >> ( istream &is, Mint &b )  {
-        int64_t  t;  is >> t;
-        b = Mint( t );
-        return  is;
-    }
-};
 
 template < typename T >
 class  Polynomial
@@ -602,10 +514,9 @@ Graph  getG( int n )  {
 }
 
 //    ======== 128 BIT INTEGER CODE BEGIN ========
-typedef __int128_t  _LLI;  //  or unsigned instead
+typedef __int128_t  _LLI;
 
-string toString( _LLI value )
-{
+string toString( _LLI value )  {
     string  output;
     while( output.empty()  ||  value > 0 )  {
         output = (char)( value %10 + '0' ) + output;
@@ -613,8 +524,7 @@ string toString( _LLI value )
     }
     return output;
 }
-istream& operator >> ( istream &stream, _LLI &v )
-{
+istream& operator >> ( istream &stream, _LLI &v )  {
     string  s;
     stream >> s;
     bool  neg = false;
@@ -624,8 +534,7 @@ istream& operator >> ( istream &stream, _LLI &v )
     if( neg )    v = -v;
     return stream;
 }
-ostream& operator << ( ostream &stream, _LLI v )
-{
+ostream& operator << ( ostream &stream, _LLI v )  {
     if( v == 0 )    stream << "0";
     else  {
         if( v < 0 )  { stream << "-";    v = -v; }
