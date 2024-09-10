@@ -1,10 +1,8 @@
-// SOLVES PROJECT EULER PROBLEM 189 BY FINDING THE
-// CHROMATIC POLYNOMIAL OF A 64 NODE GRAPH.
+// SOLVES PROJECT EULER 189 TRI-COLORING A TRIANGULAR GRID
+// https://projecteuler.net/problem=189
 
-// USES 128 bit INTEGERS FOR THE POLYNOMIAL OPERATIONS
-// TIME REQUIRED ON MY LAPTOP:  189 MINUTES (!)  ANS: 10834893628237824
-// REQUIRES 126 MINUTES WHEN CALCULATING SOLUTION MOD 998244353
-// REQUIRES ONLY 6 SECONDS FOR 7 ROWS (49 NODE GRAPH)
+// 4.8 SECONDS FOR 7 ROWS (49 NODE GRAPH)
+// 29  MINUTES FOR 8 ROWS (64 NODE GRAPH)
 
 #include <iostream>
 #include <algorithm>
@@ -112,11 +110,20 @@ class  Polynomial
 
 /* =======================================================================*/
 
-//using  Poly = Polynomial< Mint<998244353> >;
 using  Poly = Polynomial< __int128_t >;
+using  mint = __int128_t;
 using  i32  = int32_t;     using  i64 = int64_t;
 using  u32  = uint32_t;    using  u64 = uint64_t;
 using  pr   = pair<u32, u32>;
+
+mint  pow( mint a, u64 i )  {
+    mint  r = a,  res = 1;
+    while( i )  {
+        if( i & 1 )   res = res * r;
+        r = r * r;   i >>= 1;
+    }
+    return  res;
+}
 
 // WILL USE AN UNORDERED MAP TO MEMOIZE GRAPH/POLYNOMIAL PAIRS SO NEED HASH
 // FOR G, I.E.  vector<u64>
@@ -151,7 +158,7 @@ class  Myhash  {
     }
 };
 
-unordered_map< vector<u64>, Poly, Myhash >  memo;
+unordered_map< vector<u64>, mint, Myhash >  memo;
 
 class  Graph  {
   public:
@@ -305,7 +312,7 @@ class  Graph  {
         return  ordr;
     }
 
-    Poly  checkIfChordal( bool &ok )  {
+    mint  checkIfChordal( mint K, bool &ok )  {
         // https://en.wikipedia.org/wiki/Lexicographic_breadth-first_search
         ok = true;
         vector<u32>  ordering = chordalOrdering();
@@ -332,9 +339,9 @@ class  Graph  {
         }
 
         // G IS CHORDAL
-        Poly  chromPoly = { 1 };
+        mint  chromPoly = 1;
         for( i32 i=0 ; i<(i32)g.size() ; ++i )
-            if( tally[i] )   chromPoly *= Poly( { -i, 1 } ).pow( tally[i] );
+            if( tally[i] )   chromPoly *= pow( mint( K - i ), tally[i] );
         return  chromPoly;
     }
 
@@ -367,22 +374,22 @@ class  Graph  {
         return  comps;
     }
 
-    Poly  chromaticPolynomial()  {
+    mint  chromaticPolynomial( mint  K )  {
         // FIND CONNECTED COMPONENTS OF G
         vector< vector<u32> >  comps = components();
 
         // PROCESS EACH CONNECTED COMPONENT SEPARATELY
         if( comps.size() > 1 )  {
-            Poly  cp = { 1 };
+            mint  cp = 1;
             for( auto &cmp : comps )  {
                 if( cmp.size() == 0 );
-                else if( cmp.size() == 1 )   cp *= { 0, 1 };
-                else if( cmp.size() == 2 )   cp *= { 0, -1, 1 };
-                else  cp *= extractNodes( cmp ).chromaticPolyConnected();
+                else if( cmp.size() == 1 )   cp *= K;
+                else if( cmp.size() == 2 )   cp *= K * K - K;
+                else  cp *= extractNodes( cmp ).chromaticPolyConnected( K );
             }
             return  cp;
         }
-        return  chromaticPolyConnected();
+        return  chromaticPolyConnected( K );
     }
 
   private:
@@ -415,23 +422,23 @@ class  Graph  {
         }
     }
 
-    Poly  chromaticPolyConnected( bool checkBridges = true )  {
+    mint  chromaticPolyConnected( mint K, bool checkBridges = true )  {
         // G IS ASSUMED CONNECTED.  CONNECTIVITY IS MAINTAINED.
         const i32  n = g.size();
-        if( n == 0 )   return  { 1 };
-        if( n == 1 )   return  { 0, 1 };
-        if( n == 2 )   return  { 0, -1, 1 };
+        if( n == 0 )   return  1;
+        if( n == 1 )   return  K;
+        if( n == 2 )   return  K*K - K;
         if( n == 3 )  {
-            if( isComplete() )    return  { 0, 2, -3, 1 };
-            else                  return  { 0, 1, -2, 1 };
+            if( isComplete() )    return  K*( K*K - K - K - K + 2 );
+            else                  return  K*( K*K - K - K + 1 );
         }
 
         if( memo.find( g ) != memo.end() )   return  memo[g];
 
         // CHECK FOR COMPLETE GRAPH
         if( isComplete() )  {
-            Poly  chromPoly = { 1 };
-            for( i32 i=0 ; i<n ; ++i )  chromPoly *= Poly( { -i, 1 } );
+            mint  chromPoly = 1;
+            for( i32 i=0 ; i<n ; ++i )  chromPoly *= ( K - i );
             return  chromPoly;
         }
 
@@ -439,18 +446,18 @@ class  Graph  {
         if( checkBridges )  {
             pr  edge;
             if( findBridge( edge ) )
-                return  memo[g] = contractEdge( edge ).chromaticPolyConnected() * Poly( { -1, 1 } );
+                return  memo[g] = contractEdge( edge ).chromaticPolyConnected( K ) * ( K - 1 );
         }
 
         // CHECK IF G IS CHORDAL
         bool  ok = true;
-        Poly  chordalPoly = checkIfChordal( ok );
+        mint  chordalPoly = checkIfChordal( K, ok );
         if( ok )   return  memo[g] = chordalPoly;
 
         // CHECK IF LOOP
         if( isLoop() )  {
-            Poly  basic     =  { -1, 1 };
-            Poly  chromPoly = basic.pow( n );
+            mint  basic     =  K - 1;
+            mint  chromPoly = pow( basic, n );
             if( g.size() & 1 )    chromPoly -= basic;
             else                  chromPoly += basic;
             return  chromPoly;
@@ -460,15 +467,15 @@ class  Graph  {
         if( density() <= .6 ) {
             // LOW DENSITY
             pr  edge = chooseEdge();
-            return  memo[g] = deleteEdge( edge ).chromaticPolyConnected() -
-                              contractEdge( edge ).chromaticPolyConnected();
+            return  memo[g] = deleteEdge( edge ).chromaticPolyConnected( K ) -
+                              contractEdge( edge ).chromaticPolyConnected( K );
         }
 
         // IF HIGH DENSITY
         pr  edge = newEdge();
-        Graph  K = addEdge( edge );
-        return  memo[g] = K.chromaticPolyConnected( false ) +
-                          K.contractEdge( edge ).chromaticPolyConnected();
+        Graph  H = addEdge( edge );
+        return  memo[g] = H.chromaticPolyConnected( K, false ) +
+                          H.contractEdge( edge ).chromaticPolyConnected( K );
     }
 };
 
@@ -480,7 +487,7 @@ pair<u32, vector<u64>>  readData()  {
     vector<u64>  G( n, 0 );
 
     for( u32 i=0, u, v ; i<m ; ++i )  {
-        cin >> u >> v;
+        cin >> u >> v;  --u;  --v;
         if( u == v )   return  make_pair( n, G );
 
         G[u] |= 1ULL << v;
@@ -551,7 +558,7 @@ int  main()  {
 
     Graph  G = getG( 8 );
 
-    auto  ans = G.chromaticPolynomial().evaluate( 3 );
+    auto  ans = G.chromaticPolynomial( 3 );
     cout << ans << '\n';
 
     return 0;
