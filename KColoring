@@ -68,7 +68,7 @@ class  Mint
     Mint& operator         -- ()  { return  *this -= Mint( 1 ); }
 
     constexpr Mint  pow( u64 n ) const  {
-        Mint  ret(  1 ), mul( *this );
+        Mint  ret( 1 ),  mul( *this );
         while( n > 0 )  { if( n & 1 )  ret *= mul;   mul *= mul;  n >>= 1; }
         return  ret;
     }
@@ -96,104 +96,6 @@ class  Mint
     }
 };
 
-template < typename T >
-class  Polynomial
-{
-  public:
-    using  i64 = int64_t;
-    using  P   = Polynomial<T>;
-
-    vector<T>  a;
-
-  public:
-    constexpr Polynomial( size_t sz = 0 )  { a.resize( sz, 0 ); }
-    constexpr Polynomial( const initializer_list<T>  v )  { a = v; }
-    constexpr Polynomial( const vector<T>  &v )  { a = v; }
-    constexpr Polynomial( size_t sz, T val )  { a.resize( sz, val ); }
-    constexpr size_t  size() const { return a.size(); }
-    void  resize( size_t sz, T m = 0 )  { (*this).a.resize( sz, m ); }
-
-    constexpr P  operator - ( const P &a ) const { return  P(*this) -= a; }
-    constexpr P  operator + ( const P &a ) const { return  P(*this) += a; }
-    constexpr P  operator * ( const i64 a )  const { return  P(*this) *= a; }
-    constexpr P  operator * ( const P &a ) const { return  P(*this) *= a; }
-
-    P  &operator += ( const P &r )  {
-        this->resize( max( this->size(), r.size() ) );
-        for( size_t i=0 ; i<r.size() ; ++i )  this->a[i] += r.a[i];
-        return  *this;
-    }
-    P  &operator -= ( const P &r )  {
-        this->resize( max( this->size(), r.size() ) );
-        for( size_t i=0 ; i<r.size() ; ++i )  this->a[i] -= r.a[i];
-        return  *this;
-    }
-    P  &operator *= ( const i64 v )  {
-        for( size_t i=0 ; i<this->size() ; ++i )  this->a[i] *= v;
-        return  *this;
-    }
-    P  &operator *= ( const P &r )  {
-        this->convolution_inplace( r );
-        return  *this;
-    }
-    P pow( int b )  {
-        P  res = { 1 };
-        P  a   = *this;
-        while( b > 0 )  {
-            if( b & 1 )    res = a * res;
-            b >>= 1;
-            if( b > 0 )    a   = a * a;
-        }
-        return  res;
-    }
-    T  evaluate( i64 x )  {
-        T  ans = 0;
-        T  powx = 1;
-        for( auto &v : a )  {
-            ans += v*powx;
-            powx *= x;
-       }
-       return  ans;
-    }
-    friend std::ostream &operator << ( std::ostream &os, const P &p )  {
-        for( auto &v : p.a )   os << v << " ";
-        return  os;
-    }
-    friend istream& operator >> ( istream& is, P &p )  {
-        for( auto &v : p.a )  { i64 w;  is >> w;  v = w; }   return  is;
-    }
-
-  private:
-    T  &operator [] ( size_t  x )  {
-        assert( x < this->a.size() );
-        return  a[x];
-    }
-    constexpr T  &operator [] ( size_t  x ) const {
-        assert( x < this->a.size() );
-        return  a[x];
-    }
-    P  convolution_brute( P &a, P &b ) const  {
-        size_t  n = a.size(),  m = b.size();
-        P  ans( n + m - 1 );
-        if( n < m )
-            for( size_t j=0 ; j<m ; ++j )
-                for( size_t i=0 ; i<n ; ++i )   ans[i+j] += a[i]*b[j];
-        else
-            for( size_t i=0 ; i<n ; ++i )
-                for( size_t j=0 ; j<m ; ++j )   ans[i+j] += a[i]*b[j];
-        return ans;
-    }
-
-    P&  convolution_inplace( P b )  {
-        if( this->size() == 0  ||  b.size() == 0 )  {
-            this->a.clear();  return  *this; }
-        return  *this = convolution_brute( *this, b );
-    }
-};
-
-/* =======================================================================*/
-
-using  Poly = Polynomial< Mint<998244353> >;
 using  mint = Mint<998244353>;
 using  i32  = int32_t;     using  i64 = int64_t;
 using  u32  = uint32_t;    using  u64 = uint64_t;
@@ -553,21 +455,20 @@ class  Graph  {
     }
 };
 
-pair<u32, vector<u64>>  readData( u64 &K )  {
+pair<u32, vector<u64>>  readData()  {
     // REQUIRES NODES TO BE LABELED  0 through ( n - 1 )
-    u32  n, m;
+    u32  n, m, K;
     cin >> n >> m >> K;
 
     vector<u64>  G( n, 0 );
 
     for( u32 i=0, u, v ; i<m ; ++i )  {
         cin >> u >> v;  --u;  --v;
-        if( u == v )   return  make_pair( n, G );
 
         G[u] |= 1ULL << v;
         G[v] |= 1ULL << u;
     }
-    return  make_pair( 0, G );
+    return  make_pair( K, G );
 }
 
 
@@ -575,8 +476,7 @@ int  main()  {
     ios::sync_with_stdio( 0 );
     cin.tie( 0 );
 
-    u64  K;
-    auto [ n, g ] = readData( K );
+    auto [ K, g ] = readData();
 
     Graph  G( g );
     cout << G.chromaticPolynomial( K ) << '\n';
