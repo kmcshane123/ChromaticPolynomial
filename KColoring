@@ -308,7 +308,7 @@ class  Graph  {
             auto  p = __builtin_popcountll( g[u] )/3;
             for( u32 v=u+1 ; v<n ; ++v )  {
                 if( ( g[u] >> v & 1 )  &&  ( best == 0  ||
-                    p + __builtin_popcountll( g[v] ) <= best ) )  {
+                    p + __builtin_popcountll( g[v] ) < best ) )  {
                     best = p + __builtin_popcountll( g[v] );
                     edge = { u, v };
                 }
