@@ -1,119 +1,20 @@
 // SOLVES PROJECT EULER 189 TRI-COLORING A TRIANGULAR GRID
 // https://projecteuler.net/problem=189
 
-// .98  SECONDS FOR 7 ROWS (49 NODE GRAPH)
-//  26  SECONDS FOR 8 ROWS (64 NODE GRAPH)
+// .9 SECONDS FOR 7 ROWS (49 NODE GRAPH)
+// 25 SECONDS FOR 8 ROWS (64 NODE GRAPH)
 
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <stack>
 #include <unordered_map>
-#include <cassert>
-#include <limits>
 using namespace std;
 
-template < typename T >
-class  Polynomial
-{
-  public:
-    using  i64 = int64_t;
-    using  P   = Polynomial<T>;
-
-    vector<T>  a;
-
-  public:
-    constexpr Polynomial( size_t sz = 0 )  { a.resize( sz, 0 ); }
-    constexpr Polynomial( const initializer_list<T>  v )  { a = v; }
-    constexpr Polynomial( const vector<T>  &v )  { a = v; }
-    constexpr Polynomial( size_t sz, T val )  { a.resize( sz, val ); }
-    constexpr size_t  size() const { return a.size(); }
-    void  resize( size_t sz, T m = 0 )  { (*this).a.resize( sz, m ); }
-
-    constexpr P  operator - ( const P &a ) const { return  P(*this) -= a; }
-    constexpr P  operator + ( const P &a ) const { return  P(*this) += a; }
-    constexpr P  operator * ( const i64 a )  const { return  P(*this) *= a; }
-    constexpr P  operator * ( const P &a ) const { return  P(*this) *= a; }
-
-    P  &operator += ( const P &r )  {
-        this->resize( max( this->size(), r.size() ) );
-        for( size_t i=0 ; i<r.size() ; ++i )  this->a[i] += r.a[i];
-        return  *this;
-    }
-    P  &operator -= ( const P &r )  {
-        this->resize( max( this->size(), r.size() ) );
-        for( size_t i=0 ; i<r.size() ; ++i )  this->a[i] -= r.a[i];
-        return  *this;
-    }
-    P  &operator *= ( const i64 v )  {
-        for( size_t i=0 ; i<this->size() ; ++i )  this->a[i] *= v;
-        return  *this;
-    }
-    P  &operator *= ( const P &r )  {
-        this->convolution_inplace( r );
-        return  *this;
-    }
-    P pow( int b )  {
-        P  res = { 1 };
-        P  a   = *this;
-        while( b > 0 )  {
-            if( b & 1 )    res = a * res;
-            b >>= 1;
-            if( b > 0 )    a   = a * a;
-        }
-        return  res;
-    }
-    T  evaluate( i64 x )  {
-        T  ans = 0;
-        T  powx = 1;
-        for( auto &v : a )  {
-            ans += v*powx;
-            powx *= x;
-       }
-       return  ans;
-    }
-    friend std::ostream &operator << ( std::ostream &os, const P &p )  {
-        for( auto &v : p.a )   os << v << " ";
-        return  os;
-    }
-    friend istream& operator >> ( istream& is, P &p )  {
-        for( auto &v : p.a )  { i64 w;  is >> w;  v = w; }   return  is;
-    }
-
-  private:
-    T  &operator [] ( size_t  x )  {
-        assert( x < this->a.size() );
-        return  a[x];
-    }
-    constexpr T  &operator [] ( size_t  x ) const {
-        assert( x < this->a.size() );
-        return  a[x];
-    }
-    P  convolution_brute( P &a, P &b ) const  {
-        size_t  n = a.size(),  m = b.size();
-        P  ans( n + m - 1 );
-        if( n < m )
-            for( size_t j=0 ; j<m ; ++j )
-                for( size_t i=0 ; i<n ; ++i )   ans[i+j] += a[i]*b[j];
-        else
-            for( size_t i=0 ; i<n ; ++i )
-                for( size_t j=0 ; j<m ; ++j )   ans[i+j] += a[i]*b[j];
-        return ans;
-    }
-
-    P&  convolution_inplace( P b )  {
-        if( this->size() == 0  ||  b.size() == 0 )  {
-            this->a.clear();  return  *this; }
-        return  *this = convolution_brute( *this, b );
-    }
-};
-
-/* =======================================================================*/
-
-using  Poly = Polynomial< int64_t >;
 using  mint = int64_t;
-using  i32  = int32_t;     using  i64 = int64_t;
-using  u32  = uint32_t;    using  u64 = uint64_t;
+using  i32  = int32_t;
+using  u32  = uint32_t;
+using  u64  = uint64_t;
 using  pr   = pair<u32, u32>;
 
 mint  pow( mint a, u64 i )  {
@@ -520,43 +421,13 @@ Graph  getG( int n )  {
     return  g;
 }
 
-//    ======== 128 BIT INTEGER CODE BEGIN ========
-typedef __int128_t  _LLI;
-
-string toString( _LLI value )  {
-    string  output;
-    while( output.empty()  ||  value > 0 )  {
-        output = (char)( value %10 + '0' ) + output;
-        value /= 10;
-    }
-    return output;
-}
-istream& operator >> ( istream &stream, _LLI &v )  {
-    string  s;
-    stream >> s;
-    bool  neg = false;
-    if( s[0] == '-' )    { s.erase( 0, 1 );   neg = true; }
-    int len = s.length();    v = 0;
-    for( int32_t i=0 ; i<len ; ++i )    v = v*10 + s[i] - '0';
-    if( neg )    v = -v;
-    return stream;
-}
-ostream& operator << ( ostream &stream, _LLI v )  {
-    if( v == 0 )    stream << "0";
-    else  {
-        if( v < 0 )  { stream << "-";    v = -v; }
-        stream << toString( v );
-    }
-    return stream;
-}
-//    ======== 128 BIT INTEGER CODE END ========
-
 
 int  main()  {
     ios::sync_with_stdio( 0 );
     cin.tie( 0 );
 
-    Graph  G = getG( 8 );
+    u32 rows = 7;
+    Graph  G = getG( rows );
 
     auto  ans = G.chromaticPolynomial( 3 );
     cout << ans << '\n';
