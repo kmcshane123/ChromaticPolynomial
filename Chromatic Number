@@ -1,6 +1,7 @@
 // COMPUTE CHROMATIC POLYNOMIAL OF A GRAPH G
 // --LIMITED TO GRAPHS WITH AT MOST 64 NODES
 // PASSES TESTS AT  https://judge.yosupo.jp/problem/chromatic_polynomial
+//                  https://judge.yosupo.jp/problem/chromatic_number
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -8,6 +9,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <limits>
+#include <iomanip>
 
 using namespace std;
 
@@ -191,9 +193,40 @@ class  Polynomial
     }
 };
 
-/* =======================================================================*/
+using  i128 = __int128_t;      // 128 BIT INTEGER I/O
+string toString( i128 value )  {
+    string  output;
+    while( output.empty()  ||  value > 0 )  {
+        output = (char)( value %10 + '0' ) + output;
+        value /= 10;
+    }
+    return output;
+}
+istream& operator >> ( istream &stream, i128 &v )  {
+    string  s;
+    stream >> s;
+    bool  neg = false;
+    if( s[0] == '-' )    { s.erase( 0, 1 );   neg = true; }
+    int len = s.length();    v = 0;
+    for( int32_t i=0 ; i<len ; ++i )    v = v*10 + s[i] - '0';
+    if( neg )    v = -v;
+    return stream;
+}
+ostream& operator << ( ostream &stream, i128 v )  {
+    if( v == 0 )    stream << "0";
+    else  {
+        if( v < 0 )  { stream << "-";    v = -v; }
+        stream << toString( v );
+    }
+    return stream;
+}
 
+// ============= SET COEFFICIENT INTEGER TYPE ===============
+//using  Poly = Polynomial< __int128_t >;
+//using  Poly = Polynomial< int64_t >;
 using  Poly = Polynomial< Mint<998244353> >;
+//using  Poly = Polynomial< Biggy >;
+
 using  i32  = int32_t;     using  i64 = int64_t;
 using  u32  = uint32_t;    using  u64 = uint64_t;
 using  pr   = pair<u32, u32>;
